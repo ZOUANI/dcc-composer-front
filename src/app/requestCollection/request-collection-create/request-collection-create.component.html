@@ -1,0 +1,205 @@
+<mat-horizontal-stepper class="bg-light" #stepper>
+  <mat-step >
+
+      <ng-template matStepLabel >Application composite Infos</ng-template>
+
+      <div class="form-group">
+        <label for="Collection Name">Application composite name</label>
+        <input type="text" class="form-control form-control-sm" id="Collection Name" [(ngModel)]="requestCollection.name">
+      </div>
+      <div class="form-group">
+        <label for="description">description</label>
+        <textarea type="text" class="form-control form-control-sm" id="description" [(ngModel)]="requestCollection.description"></textarea>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8"></div>
+        <button class="col-md-4 float-right btn btn-info"  matStepperNext>Next</button>
+      </div>
+
+  </mat-step>
+  <mat-step >
+
+      <ng-template matStepLabel>Create Requests</ng-template>
+
+    <div class="row m-3 ">
+      <div class="card col-md-5 bg-light">
+
+        <div class="card bg-light m-1">
+          <div class="card-body">
+            <div class="input-group input-group-sm mb-3 " >
+              <div class="input-group-prepend">
+                <span class="input-group-text">Url</span>
+              </div>
+              <input type="text" class="form-control form-control-sm"  [(ngModel)]="requestCreate.url">
+            </div>
+
+            <div class="input-group  input-group-sm mb-3" >
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="response source">Method</label>
+              </div>
+              <select class="form-control form-control-sm"
+                      [(ngModel)]="requestCreate.httpMethod">
+                <option>GET</option>
+                <option>POST</option>
+
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-check col">
+              <label class="form-check-label">
+                <input type="checkbox" [checked]="pathVariable" (click)="pathVariableSwitch()"> parametrer form link
+              </label>
+            </div>
+
+            <div class="form-check col">
+              <label class="form-check-label">
+                <input type="checkbox" [checked]="filterData" (click)="filterDataSwitch()"> parametrer form body
+              </label>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+        <div class="card m-2 bg-light" *ngIf="pathVariable">
+          <strong>path variable infos</strong>
+          <div class="card-body">
+
+            <div class="input-group input-group-sm mb-3 ">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-sm">param name</span>
+              </div>
+              <input type="text" class="form-control form-control-sm" id="param name" [(ngModel)]="requestCreate.pathVariableName">
+            </div>
+
+
+
+            <div class="input-group  input-group-sm mb-3" *ngIf="requestCollection.requests.length !== 0">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="response source">Extract param from</label>
+              </div>
+              <select class="form-control form-control-sm" id="response source"
+                      [(ngModel)]="requestCreate.pathVariableResponseSource">
+                <option *ngFor="let item of requestCollection.requests" value="{{item.num}}">Response of request : {{item.num}}</option>
+              </select>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="card m-2 bg-light" *ngIf="filterData">
+          <strong>body params info</strong>
+          <div class="card-body">
+            <div class="input-group  input-group-sm mb-3" *ngIf="requestCollection.requests.length !== 0">
+              <div class="input-group-prepend">
+                <label class="input-group-text" for="response source">Extract param from</label>
+              </div>
+              <select class="form-control form-control-sm"
+                      [(ngModel)]="bodyParamCreate.responseSource">
+                <option *ngFor="let item of requestCollection.requests" value="{{item.num}}">Response of request : {{item.num}}</option>
+              </select>
+            </div>
+
+            <div class="input-group input-group-sm mb-3 ">
+              <div class="input-group-prepend">
+                <span class="input-group-text" *ngIf="requestCollection.requests.length === 0">Param name </span>
+                <span class="input-group-text" *ngIf="requestCollection.requests.length !== 0">Param name to extract</span>
+              </div>
+              <input type="text" class="form-control form-control-sm"  [(ngModel)]="bodyParamCreate.name">
+            </div>
+
+            <div class="input-group input-group-sm mb-3 " *ngIf="requestCollection.requests.length !== 0">
+              <div class="input-group-prepend">
+                <span class="input-group-text">mapped param name</span>
+              </div>
+              <input type="text" class="form-control form-control-sm"  [(ngModel)]="bodyParamCreate.nextName">
+            </div>
+
+
+
+            <div class="col">
+              <button class="btn btn-primary btn-sm btn-block  m-1" (click)="addBodyParam()">add body param</button>
+            </div>
+          </div>
+          <table class="table text-center ">
+            <thead *ngIf="requestCollection.requests.length !== 0">
+            <th>name</th>
+            <th >response source</th>
+            <th >current name</th>
+            </thead>
+            <tr *ngIf="requestCreate.bodyParams.length === 0">
+              <td colspan="3">No Items ...</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr *ngFor="let item of requestCreate.bodyParams">
+              <td>{{item.name}}</td>
+              <td *ngIf="requestCollection.requests.length !== 0">{{item.responseSource}}</td>
+              <td *ngIf="requestCollection.requests.length !== 0">{{item.nextName}}</td>
+            </tr>
+          </table>
+        </div>
+        <button class="btn btn-block btn-primary btn-sm m-1" (click)="addRequest()">add Request</button>
+
+      </div>
+      <div class="col-md-7">
+
+        <table class="table">
+          <thead>
+          <th>number</th>
+          <th>url</th>
+          <th>link param</th>
+          <th>source of link param </th>
+          <th>body params</th>
+          </thead>
+          <tr *ngFor="let item of requestCollection.requests">
+            <td>{{item.num}}</td>
+            <td>{{item.url}}</td>
+            <td>
+              {{item.pathVariableName}}
+              <p *ngIf="item.pathVariableName==null">_____</p>
+            </td>
+            <td>
+              {{item.pathVariableResponseSource}}
+              <p *ngIf="item.pathVariableResponseSource==null">_____</p>
+            </td>
+            <td>
+              <div>
+                <table >
+
+                  <thead *ngIf=" requestCollection.requests.indexOf(item) !== 0">
+                  <th>param name</th>
+                  <th>extracted from</th>
+                  <th>mapped name</th>
+                  </thead>
+                  <tr *ngFor="let elem of item.bodyParams">
+                    <td>{{elem.name}}</td>
+                    <td *ngIf=" requestCollection.requests.indexOf(item) !== 0">{{elem.responseSource}}</td>
+                    <td *ngIf=" requestCollection.requests.indexOf(item) !== 0">{{elem.nextName}}</td>
+                  </tr>
+                </table>
+                <p *ngIf="item.bodyParams.length === 0">________</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <!--<button class="btn btn-success" (click)="saveCollection()">save</button>-->
+      </div>
+
+    </div>
+
+    <div class="row">
+        <button class=" col btn btn-info  btn-sm m-1"  matStepperPrevious>Back</button>
+        <button  class=" col btn btn-success   btn-sm m-1"  (click)="saveCollection()">save</button>
+      </div>
+
+  </mat-step>
+
+</mat-horizontal-stepper>
